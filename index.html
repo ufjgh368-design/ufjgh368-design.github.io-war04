@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>霧社事件 1930|歷史特別節目・立體戰略地圖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --seediq-red:#A63A2B;      /* 赭紅:土地與抵抗 */
+  --seediq-deep:#6E1A14;     /* 深紅:血脈 */
+  --seediq-earth:#8B6B4A;    /* 土色 */
+  --japan-blue:#3D6B8E;      /* 冷藍:國家機器 */
+  --japan-steel:#5C6B78;     /* 鋼灰 */
+  --neutral-cream:#EDE4D0;   /* 米白:平民與中立 */
+  --neutral-gold:#C9A961;    /* 淡金 */
+  --bg-ink:#0B120E;          /* 山夜墨綠 */
+  --hud-line:rgba(201,169,97,.35);
+  --hud-panel:rgba(10,16,13,.82);
+  --serif:"Noto Serif TC","PMingLiU",serif;
+  --sans:"Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg-ink);font-family:var(--sans);color:var(--neutral-cream)}
+#scene{position:fixed;inset:0;z-index:1}
+canvas{display:block}
+
+/* ── 開場片頭 ─────────────────────────── */
+#intro{position:fixed;inset:0;z-index:100;background:
+  radial-gradient(ellipse at 50% 70%, #1A2A20 0%, #0B120E 55%, #050807 100%);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;
+  transition:opacity 1.6s ease}
+#intro.hide{opacity:0;pointer-events:none}
+.intro-mist{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.intro-mist span{position:absolute;width:140%;height:220px;left:-20%;
+  background:linear-gradient(90deg,transparent,rgba(237,228,208,.06),rgba(237,228,208,.10),rgba(237,228,208,.06),transparent);
+  filter:blur(18px);animation:mistDrift 26s linear infinite}
+.intro-mist span:nth-child(1){top:18%;animation-duration:34s}
+.intro-mist span:nth-child(2){top:48%;animation-duration:24s;animation-delay:-8s}
+.intro-mist span:nth-child(3){top:74%;animation-duration:30s;animation-delay:-15s}
+@keyframes mistDrift{from{transform:translateX(-12%)}to{transform:translateX(12%)}}
+.intro-eyebrow{letter-spacing:.65em;font-size:13px;color:var(--neutral-gold);margin-bottom:26px;
+  text-indent:.65em;animation:fadeUp 1.4s .3s both}
+.intro-title{font-family:var(--serif);font-weight:900;font-size:clamp(52px,10vw,118px);
+  letter-spacing:.14em;text-indent:.14em;line-height:1.1;color:#F2E9D6;
+  text-shadow:0 0 60px rgba(166,58,43,.45);animation:fadeUp 1.6s .7s both}
+.intro-sub{font-family:var(--serif);font-size:clamp(15px,2.4vw,22px);letter-spacing:.42em;text-indent:.42em;
+  color:rgba(237,228,208,.75);margin-top:20px;animation:fadeUp 1.6s 1.1s both}
+.intro-date{margin-top:14px;font-size:13px;letter-spacing:.3em;text-indent:.3em;color:rgba(201,169,97,.8);
+  animation:fadeUp 1.6s 1.35s both}
+.intro-rainbow{width:min(420px,70vw);height:120px;margin-top:8px;animation:fadeUp 1.8s 1.5s both}
+#introBtn{margin-top:34px;padding:15px 52px;font-family:var(--sans);font-size:15px;letter-spacing:.5em;text-indent:.5em;
+  color:var(--neutral-cream);background:rgba(166,58,43,.16);border:1px solid rgba(166,58,43,.75);
+  cursor:pointer;transition:.35s;animation:fadeUp 1.8s 1.9s both}
+#introBtn:hover,#introBtn:focus-visible{background:rgba(166,58,43,.42);box-shadow:0 0 34px rgba(166,58,43,.35);outline:2px solid var(--neutral-gold);outline-offset:3px}
+.intro-note{margin-top:22px;max-width:560px;padding:0 24px;font-size:12px;line-height:2;color:rgba(237,228,208,.5);
+  animation:fadeUp 1.8s 2.2s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── YouTube 片頭 ─────────────────────── */
+#ytOverlay{position:fixed;inset:0;z-index:90;background:#000;display:none;
+  align-items:center;justify-content:center;transition:opacity 1.2s ease}
+#ytOverlay.show{display:flex}
+#ytOverlay.hide{opacity:0;pointer-events:none}
+#ytFrame{width:100%;height:100%;max-width:100vw;max-height:100vh;border:0}
+#ytSkip{position:absolute;right:22px;bottom:26px;z-index:95;padding:11px 30px;
+  font-family:var(--sans);font-size:13px;letter-spacing:.35em;text-indent:.35em;
+  color:var(--neutral-cream);background:rgba(10,16,13,.72);border:1px solid var(--hud-line);
+  cursor:pointer;transition:.3s;backdrop-filter:blur(4px)}
+#ytSkip:hover,#ytSkip:focus-visible{border-color:var(--neutral-gold);color:var(--neutral-gold)}
+#ytHint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:94;
+  padding:16px 44px;font-size:15px;letter-spacing:.4em;text-indent:.4em;
+  color:var(--neutral-cream);background:rgba(110,26,20,.55);border:1px solid rgba(166,58,43,.8);
+  cursor:pointer;display:none}
+#ytHint.show{display:block}
+
+/* ── HUD 共通 ─────────────────────────── */
+.hud{position:fixed;z-index:20;pointer-events:none;transition:opacity .8s}
+.hud.off{opacity:0;pointer-events:none!important}
+.panel{background:var(--hud-panel);border:1px solid var(--hud-line);backdrop-filter:blur(6px);
+  box-shadow:0 4px 26px rgba(0,0,0,.5)}
+.panel-title{font-size:11px;letter-spacing:.35em;text-indent:.35em;color:var(--neutral-gold);
+  padding:8px 12px 7px;border-bottom:1px solid var(--hud-line);display:flex;align-items:center;gap:8px}
+.panel-title::before{content:"";width:7px;height:7px;background:var(--seediq-red);
+  transform:rotate(45deg);flex:none}
+
+/* 頂部 ── */
+#topbar{top:0;left:0;right:0;display:flex;align-items:stretch;gap:0;
+  background:linear-gradient(180deg,rgba(5,9,7,.92),rgba(5,9,7,.55) 75%,transparent);
+  border-bottom:1px solid var(--hud-line);padding:0}
+.live-badge{display:flex;align-items:center;gap:9px;padding:14px 18px;background:rgba(110,26,20,.55);
+  border-right:1px solid var(--hud-line);font-size:12px;letter-spacing:.3em;text-indent:.1em;color:#F2E9D6;flex:none}
+.live-dot{width:9px;height:9px;border-radius:50%;background:#E4573D;animation:pulse 1.6s infinite;flex:none}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(228,87,61,.6)}50%{opacity:.55;box-shadow:0 0 0 7px rgba(228,87,61,0)}}
+#topTitle{flex:1;display:flex;align-items:center;gap:16px;padding:0 18px;min-width:0}
+#topTitle .t-main{font-family:var(--serif);font-weight:900;font-size:clamp(17px,2.6vw,24px);letter-spacing:.22em;white-space:nowrap}
+#topTitle .t-en{font-size:10px;letter-spacing:.3em;color:rgba(237,228,208,.5);white-space:nowrap}
+#phaseDate{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;padding:8px 18px;
+  border-left:1px solid var(--hud-line);flex:none}
+#phaseDate .d-big{font-family:var(--serif);font-size:clamp(14px,2vw,19px);letter-spacing:.15em;color:var(--neutral-gold)}
+#phaseDate .d-sub{font-size:10px;letter-spacing:.25em;color:rgba(237,228,208,.55);margin-top:2px}
+
+/* 左側:戰力對比 ── */
+#forcePanel{left:14px;top:86px;width:250px}
+#forceBody{padding:12px 14px 14px;font-size:12px}
+.force-row{margin-bottom:13px}
+.force-name{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;letter-spacing:.08em}
+.force-name b{font-size:12.5px}
+.force-name .num{font-family:var(--serif);font-size:16px;letter-spacing:.05em}
+.force-bar{height:9px;background:rgba(255,255,255,.07);position:relative;overflow:hidden}
+.force-bar i{position:absolute;left:0;top:0;bottom:0;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.force-bar.seediq i{background:linear-gradient(90deg,var(--seediq-deep),var(--seediq-red) 60%,#C4553F)}
+.force-bar.japan i{background:linear-gradient(90deg,#27455E,var(--japan-blue) 60%,#6E93B0)}
+.force-weap{margin-top:4px;font-size:10.5px;line-height:1.7;color:rgba(237,228,208,.62);letter-spacing:.04em}
+#forceNote{margin-top:2px;padding-top:9px;border-top:1px dashed var(--hud-line);
+  font-size:10.5px;line-height:1.8;color:rgba(201,169,97,.85);letter-spacing:.04em}
+
+/* 右側:事件快報 ── */
+#eventPanel{right:14px;top:86px;width:262px;max-height:min(46vh,420px);display:flex;flex-direction:column}
+#eventBody{padding:10px 12px;overflow:hidden auto;font-size:12px;scrollbar-width:thin}
+.evt{padding:9px 10px;margin-bottom:8px;border-left:3px solid var(--neutral-gold);
+  background:rgba(255,255,255,.035);line-height:1.75;letter-spacing:.03em;
+  animation:evtIn .7s both}
+.evt.seediq{border-left-color:var(--seediq-red)}
+.evt.japan{border-left-color:var(--japan-blue)}
+.evt .evt-time{display:block;font-size:10px;letter-spacing:.22em;color:rgba(201,169,97,.9);margin-bottom:3px}
+@keyframes evtIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+
+/* 底部:旁白 + 時間軸 ── */
+#bottomWrap{left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:0 14px 12px;background:linear-gradient(0deg,rgba(5,9,7,.94) 30%,rgba(5,9,7,.55) 75%,transparent)}
+#narration{max-width:860px;width:100%;text-align:center;pointer-events:none}
+#narrTitle{font-family:var(--serif);font-weight:900;font-size:clamp(17px,2.6vw,25px);letter-spacing:.2em;
+  color:#F2E9D6;text-shadow:0 2px 18px rgba(0,0,0,.9);margin-bottom:6px}
+#narrTitle .ph-no{color:var(--neutral-gold);font-size:.68em;letter-spacing:.3em;margin-right:10px;vertical-align:2px}
+#narrText{font-size:clamp(12.5px,1.6vw,15px);line-height:2;letter-spacing:.06em;color:rgba(240,233,214,.94);
+  text-shadow:0 2px 12px rgba(0,0,0,.95);min-height:3.6em}
+#timeline{width:100%;max-width:1080px;pointer-events:auto;display:flex;align-items:center;gap:10px}
+#tlTrack{flex:1;display:flex;gap:4px;align-items:flex-end}
+.tl-node{flex:1;background:none;border:none;cursor:pointer;padding:4px 0 6px;position:relative;color:inherit}
+.tl-node .tick{display:block;height:5px;background:rgba(237,228,208,.16);transition:.35s}
+.tl-node .tl-label{display:block;margin-top:5px;font-size:9.5px;letter-spacing:.06em;color:rgba(237,228,208,.45);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.35s}
+.tl-node:hover .tick,.tl-node:focus-visible .tick{background:rgba(201,169,97,.6)}
+.tl-node.done .tick{background:rgba(166,58,43,.55)}
+.tl-node.act .tick{background:var(--neutral-gold);box-shadow:0 0 12px rgba(201,169,97,.7)}
+.tl-node.act .tl-label{color:var(--neutral-gold)}
+.tl-node .prog{position:absolute;left:0;top:4px;height:5px;width:0;background:#F2E9D6;opacity:.9}
+.ctl-btn{pointer-events:auto;flex:none;width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  background:var(--hud-panel);border:1px solid var(--hud-line);color:var(--neutral-cream);cursor:pointer;
+  font-size:15px;transition:.3s}
+.ctl-btn:hover,.ctl-btn:focus-visible{border-color:var(--neutral-gold);color:var(--neutral-gold)}
+
+/* 攝影機模式 + 圖例鈕 ── */
+#camBar{right:14px;bottom:118px;display:flex;flex-direction:column;gap:6px;pointer-events:auto}
+.cam-btn{padding:9px 13px;font-size:11px;letter-spacing:.24em;text-indent:.24em;background:var(--hud-panel);
+  border:1px solid var(--hud-line);color:rgba(237,228,208,.8);cursor:pointer;transition:.3s;text-align:left}
+.cam-btn.act{border-color:var(--seediq-red);color:#F2E9D6;background:rgba(110,26,20,.4)}
+.cam-btn:hover{border-color:var(--neutral-gold)}
+
+/* 圖例 ── */
+#legend{left:14px;bottom:118px;width:250px;display:none}
+#legend.show{display:block}
+#legendBody{padding:11px 13px;font-size:11px;line-height:2.1;letter-spacing:.04em}
+.lg{display:flex;align-items:center;gap:9px}
+.lg .sw{width:22px;height:10px;flex:none;border:1px solid rgba(0,0,0,.4)}
+.lg .sw.rd{background:linear-gradient(90deg,var(--seediq-deep),var(--seediq-red))}
+.lg .sw.bl{background:linear-gradient(90deg,#27455E,var(--japan-blue))}
+.lg .sw.cr{background:var(--neutral-cream)}
+.lg .sw.gd{background:var(--neutral-gold)}
+.lg .sw.rng{background:none;border:1px dashed #7FA8C7;height:14px;border-radius:50%}
+.lg .sw.blk{background:none;border:1px dashed var(--neutral-gold);height:14px;border-radius:50%}
+
+/* 歷史反思卡 ── */
+#reflect{left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);width:min(660px,92vw);
+  opacity:0;pointer-events:none;transition:.9s;z-index:30;position:fixed}
+#reflect.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+#reflect .panel-title{font-size:12px}
+#reflectBody{padding:20px 26px 24px;font-size:13.5px;line-height:2.15;letter-spacing:.05em;color:rgba(240,233,214,.92)}
+#reflectBody p{margin-bottom:12px}
+#reflectBody .quote{font-family:var(--serif);font-size:15.5px;color:var(--neutral-gold);
+  border-left:3px solid var(--seediq-red);padding-left:14px;margin:14px 0}
+#reflectClose{display:block;margin:6px auto 0;padding:9px 34px;background:none;
+  border:1px solid var(--hud-line);color:var(--neutral-cream);letter-spacing:.3em;text-indent:.3em;cursor:pointer;font-size:12px}
+#reflectClose:hover{border-color:var(--neutral-gold);color:var(--neutral-gold)}
+
+/* 手機 ── */
+@media (max-width:820px){
+  #forcePanel{width:190px;top:76px}
+  #forceBody{font-size:11px;padding:9px 10px}
+  #eventPanel{width:196px;top:76px;max-height:32vh}
+  #camBar{bottom:150px}
+  #legend{width:190px;bottom:150px}
+  .tl-node .tl-label{display:none}
+  .live-badge{padding:10px 10px;font-size:10px;letter-spacing:.15em}
+  #topTitle .t-en{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .intro-mist span,.live-dot{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div id="scene"></div>
+
+<!-- ═══ 開場片頭 ═══ -->
+<div id="intro">
+  <div class="intro-mist"><span></span><span></span><span></span></div>
+  <div class="intro-eyebrow">歷 史 特 別 節 目 ・ 立 體 戰 略 地 圖</div>
+  <h1 class="intro-title">霧社事件</h1>
+  <div class="intro-sub">MKUNI ALANG PARAN ・ 一九三〇</div>
+  <div class="intro-date">昭和五年 十月二十七日 ── 賽德克族德固達雅群 起事</div>
+  <svg class="intro-rainbow" viewBox="0 0 420 120" aria-hidden="true">
+    <g fill="none" stroke-linecap="round" opacity=".85">
+      <path d="M30 112 A180 180 0 0 1 390 112" stroke="#A63A2B" stroke-width="5"/>
+      <path d="M42 112 A168 168 0 0 1 378 112" stroke="#C9A961" stroke-width="5"/>
+      <path d="M54 112 A156 156 0 0 1 366 112" stroke="#EDE4D0" stroke-width="5"/>
+      <path d="M66 112 A144 144 0 0 1 354 112" stroke="#5E8C6A" stroke-width="5"/>
+      <path d="M78 112 A132 132 0 0 1 342 112" stroke="#3D6B8E" stroke-width="5"/>
+    </g>
+    <text x="210" y="70" text-anchor="middle" fill="rgba(237,228,208,.7)" font-size="12" letter-spacing="6" font-family="Noto Serif TC,serif">HAKAW UTUX 彩虹橋</text>
+  </svg>
+  <button id="introBtn">開 始 播 映</button>
+  <p class="intro-note">本節目以莊重、教育為宗旨,呈現殖民統治下的族群衝突與歷史悲劇。畫面不含血腥描寫,僅以戰略沙盤方式重現事件地理與時序。</p>
+</div>
+
+<!-- ═══ YouTube 片頭 ═══ -->
+<div id="ytOverlay">
+  <div id="ytFrame"></div>
+  <button id="ytHint">▶ 點 擊 播 放</button>
+  <button id="ytSkip">跳過片頭 ⏭</button>
+</div>
+
+<!-- ═══ 頂部 ═══ -->
+<header id="topbar" class="hud off">
+  <div class="live-badge"><span class="live-dot"></span>歷史特別節目</div>
+  <div id="topTitle">
+    <span class="t-main">霧社事件・立體戰略地圖</span>
+    <span class="t-en">MUSHA INCIDENT 1930 — SEEDIQ TGDAYA UPRISING</span>
+  </div>
+  <div id="phaseDate"><span class="d-big" id="dateBig">1930</span><span class="d-sub" id="dateSub">日治時期・臺灣中部山區</span></div>
+</header>
+
+<!-- ═══ 左:戰力對比 ═══ -->
+<aside id="forcePanel" class="hud panel off">
+  <div class="panel-title">戰力對比・武器差距</div>
+  <div id="forceBody">
+    <div class="force-row">
+      <div class="force-name"><b style="color:#D9846F">賽德克起事六社</b><span class="num" id="numS" style="color:#D9846F">—</span></div>
+      <div class="force-bar seediq"><i id="barS"></i></div>
+      <div class="force-weap" id="weapS">—</div>
+    </div>
+    <div class="force-row">
+      <div class="force-name"><b style="color:#8FB4CE">日方軍警</b><span class="num" id="numJ" style="color:#8FB4CE">—</span></div>
+      <div class="force-bar japan"><i id="barJ"></i></div>
+      <div class="force-weap" id="weapJ">—</div>
+    </div>
+    <div id="forceNote">—</div>
+  </div>
+</aside>
+
+<!-- ═══ 右:事件快報 ═══ -->
+<aside id="eventPanel" class="hud panel off">
+  <div class="panel-title">事件快報</div>
+  <div id="eventBody"></div>
+</aside>
+
+<!-- ═══ 攝影機 ═══ -->
+<nav id="camBar" class="hud off">
+  <button class="cam-btn act" data-cam="cine">◈ 電影運鏡</button>
+  <button class="cam-btn" data-cam="top">◈ 高空俯瞰</button>
+  <button class="cam-btn" data-cam="free">◈ 自由視角</button>
+  <button class="cam-btn" id="legendBtn">◈ 圖例說明</button>
+</nav>
+
+<!-- ═══ 圖例 ═══ -->
+<aside id="legend" class="hud panel off">
+  <div class="panel-title">圖例</div>
+  <div id="legendBody">
+    <div class="lg"><span class="sw rd"></span>賽德克起事部落・行動路線</div>
+    <div class="lg"><span class="sw bl"></span>日方軍警・推進路線</div>
+    <div class="lg"><span class="sw cr"></span>平民・學校・中立地點</div>
+    <div class="lg"><span class="sw gd"></span>道路・吊橋・地名</div>
+    <div class="lg"><span class="sw rng"></span>山砲射程圈・飛機航線</div>
+    <div class="lg"><span class="sw blk"></span>日方封鎖線</div>
+    <div class="lg" style="margin-top:4px;color:rgba(237,228,208,.55)">拖曳旋轉・滾輪縮放(自由視角)</div>
+  </div>
+</aside>
+
+<!-- ═══ 底部:旁白 + 時間軸 ═══ -->
+<div id="bottomWrap" class="hud off">
+  <div id="narration">
+    <div id="narrTitle"><span class="ph-no">第一幕</span>序幕</div>
+    <div id="narrText"></div>
+  </div>
+  <div id="timeline">
+    <button class="ctl-btn" id="btnPrev" aria-label="上一幕">⏮</button>
+    <button class="ctl-btn" id="btnPlay" aria-label="播放/暫停">⏸</button>
+    <div id="tlTrack"></div>
+    <button class="ctl-btn" id="btnNext" aria-label="下一幕">⏭</button>
+  </div>
+</div>
+
+<!-- ═══ 歷史反思 ═══ -->
+<div id="reflect" class="panel">
+  <div class="panel-title">歷史反思・餘生之路</div>
+  <div id="reflectBody">
+    <p>霧社事件不是單一的「暴動」,而是三十餘年殖民統治壓迫下的總爆發:強制勞役、經濟剝削、文化禁令與尊嚴的踐踏,使德固達雅群六社選擇以生命捍衛 Gaya(祖訓)。</p>
+    <p>起事六社原有人口約一,二三六人,事件與翌年「第二次霧社事件」後僅存約五百人,被強制遷往川中島(今南投縣仁愛鄉清流部落 Alang Gluban)。莫那・魯道的遺骸直到一九七三年才歸葬霧社。</p>
+    <div class="quote">「如果文明是要我們卑躬屈膝,那我就讓你們看見野蠻的驕傲。」──後世對莫那・魯道精神的詮釋</div>
+    <p>今日回望,霧社事件提醒我們:任何統治若建立在剝奪他者文化與尊嚴之上,終將面對歷史的審判。理解這段歷史,是對罹難者──不分族群──最基本的敬意。</p>
+    <button id="reflectClose">回 到 地 圖</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script id="main">
+/* ═════════════════════════════════════════════════════════
+   霧社事件 1930 ─ 歷史特別節目・立體戰略地圖
+   單檔 HTML / Three.js r128
+   ═════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ── 色彩 ── */
+var C = {
+  seediqRed:0xA63A2B, seediqDeep:0x6E1A14, seediqEarth:0x8B6B4A,
+  japanBlue:0x3D6B8E, japanSteel:0x5C6B78, japanNavy:0x27455E,
+  cream:0xEDE4D0, gold:0xC9A961,
+  fire:0xE8703A, flash:0xFFE8B0
+};
+
+/* ── 地點座標(x 東西, z 南北;東南方為深山) ── */
+var LOC = {
+  puli:      {x:-186,z:-24, name:'埔里方向',   sub:'日方集結地',      side:'j'},
+  renzhi:    {x:-118,z:-14, name:'人止關',     sub:'峽谷隘口',        side:'n'},
+  wushe:     {x:-20, z:-10, name:'霧社街',     sub:'警察分室・武器庫', side:'n'},
+  school:    {x:-6,  z:-24, name:'霧社公學校', sub:'運動會會場',      side:'n'},
+  drodux:    {x:30,  z:-56, name:'督落度呼社', sub:'Drodux',          side:'s', totem:'weave'},
+  gungu:     {x:4,   z:40,  name:'固屋社',     sub:'Gungu',           side:'s', totem:'eye'},
+  truwan:    {x:56,  z:8,   name:'度魯灣社',   sub:'Truwan',          side:'s', totem:'rainbow'},
+  suku:      {x:32,  z:64,  name:'斯固社',     sub:'Suku',            side:'s', totem:'mountain'},
+  boarung:   {x:90,  z:40,  name:'波阿崙社',   sub:'Boarung',         side:'s', totem:'knife'},
+  mhebu:     {x:120, z:84,  name:'馬赫坡社',   sub:'Mhebu・莫那魯道',  side:'s', totem:'spirit'},
+  cave:      {x:146, z:110, name:'馬赫坡岩窟', sub:'最後據點',        side:'s'}
+};
+/* 駐在所(日方警察據點) */
+var POSTS = [
+  {x:-20,z:-6,  name:'霧社分室'},
+  {x:114,z:78,  name:'馬赫坡駐在所'},
+  {x:84, z:34,  name:'波阿崙駐在所'},
+  {x:10, z:36,  name:'櫻駐在所'},
+  {x:50, z:4,   name:'屯原線駐在所'}
+];
+/* 河川折線(濁水溪上游 + 塔羅灣溪) */
+var RIVER_MAIN = [[176,126],[142,102],[112,74],[84,50],[52,26],[18,8],[-26,2],[-78,-4],[-132,-10],[-192,-20]];
+var RIVER_TRIB = [[44,84],[42,58],[46,40],[52,26]];
+/* 道路折線 */
+var ROAD_MAIN = [[-192,-30],[-150,-22],[-118,-14],[-84,-12],[-48,-12],[-20,-10],[-6,-24]];
+var ROAD_EAST = [[-20,-10],[8,-2],[34,4],[56,8],[74,22],[90,40],[106,62],[120,84]];
+var ROAD_SUKU = [[4,40],[18,52],[32,64]];
+var ROAD_NORTH= [[-20,-10],[2,-30],[30,-56]];
+/* 吊橋位置(跨河) */
+var BRIDGES = [
+  {x:-52,z:-1, rot:0.25, name:'霧社吊橋'},
+  {x:35, z:17, rot:0.6,  name:'塔羅灣吊橋'},
+  {x:108,z:71, rot:0.75, name:'馬赫坡吊橋'}
+];
+
+/* ── 十二幕時間軸 ── */
+var PHASES = [
+ {id:0, tl:'序幕', no:'第一幕', title:'霧社臺地・山中之城',
+  date:'1895 – 1930', sub:'日治時期・理蕃政策',
+  narr:'臺灣中部,海拔一千一百公尺的霧社臺地。日本領臺後,以隘勇線、駐在所與警察體系深入山區,將賽德克族德固達雅群十二社納入「理蕃」統治。這裡被殖民者稱為「模範蕃地」──但模範的表象之下,暗流早已湧動。',
+  events:[{t:'背景',s:'n',x:'總督府設霧社警察分室,統轄山區各社'},{t:'背景',s:'n',x:'公學校、郵局、旅館進駐,霧社成山中行政中心'}],
+  force:{s:'約 1,236 人',sp:22,sw:'獵刀・獵槍(狩獵用)',j:'駐在所警力 百餘人',jp:14,jw:'步槍・行政與警察體系',note:'六社總人口 1,236 人,可作戰者約 300 餘人'},
+  cam:[{p:[-80,190,180],l:[0,0,10]},{p:[70,150,150],l:[10,0,20]}], env:{fog:0.0038,sun:0xFFE9C8,si:1.05,amb:0.55}},
+
+ {id:1, tl:'不滿', no:'第二幕', title:'壓迫與不滿的累積',
+  date:'1920 年代 – 1930.10',
+  sub:'勞役・剝削・尊嚴之傷',
+  narr:'強制勞役日益苛重:族人被迫搬運木材、修築工事,獵場被沒收,文面傳統遭禁,警察「和蕃婚姻」始亂終棄。一九三〇年十月七日,馬赫坡社婚宴上的「敬酒風波」──吉村巡查與莫那・魯道長子達多的衝突──成為最後的火星。',
+  events:[{t:'10.07',s:'s',x:'敬酒風波:吉村巡查毆打達多・莫那,結怨難解'},{t:'10 月中',s:'s',x:'莫那・魯道兩度率眾謝罪遭拒,恐遭嚴懲'},{t:'10 月下旬',s:'s',x:'六社密議起事,以運動會為期'}],
+  force:{s:'密議六社',sp:22,sw:'獵刀・弓箭・少量獵槍',j:'霧社警力 約 130 人',jp:16,jw:'步槍・彈藥庫存於霧社分室',note:'起事前,日方對山雨欲來毫無警覺'},
+  cam:[{p:[168,52,128],l:[120,8,84]},{p:[140,36,110],l:[118,6,82]}], env:{fog:0.0046,sun:0xE8C9A0,si:0.85,amb:0.45}},
+
+ {id:2, tl:'集結', no:'第三幕', title:'黎明前・六社集結',
+  date:'1930.10.27 凌晨', sub:'昭和五年・霧社山區',
+  narr:'十月二十七日凌晨,霧氣沉沉。馬赫坡、波阿崙、斯固、度魯灣、固屋、督落度呼六社,共三百餘名戰士,循獵徑於黑暗中集結。他們知道此行有去無回──依 Gaya 祖訓,寧為尊嚴赴死,魂歸彩虹橋。',
+  events:[{t:'凌晨',s:'s',x:'六社戰士沿山徑集結,切斷電話線'},{t:'凌晨',s:'s',x:'莫那・魯道坐鎮馬赫坡,統籌行動'}],
+  force:{s:'戰士 約 300 餘人',sp:30,sw:'獵刀・獵槍・夜行山徑優勢',j:'各駐在所 分散警力',jp:16,jw:'步槍・通訊被切斷',note:'霧與夜色,是山的子民最熟悉的盟友'},
+  cam:[{p:[150,60,140],l:[80,5,50]},{p:[60,45,100],l:[30,5,40]}], env:{fog:0.007,sun:0x9FB4D0,si:0.4,amb:0.35}},
+
+ {id:3, tl:'行動', no:'第四幕', title:'清晨・分襲駐在所',
+  date:'1930.10.27 拂曉', sub:'同步襲擊十三處據點',
+  narr:'拂曉,行動同步展開。起事族人分路襲擊馬赫坡、波阿崙、櫻、屯原等十三處駐在所,奪取步槍一百八十枝、彈藥兩萬餘發,並封鎖對外道路與吊橋。山區的殖民統治網,在一個清晨之內被切斷。',
+  events:[{t:'拂曉',s:'s',x:'分襲十三處駐在所,奪取槍械彈藥'},{t:'拂曉',s:'s',x:'切斷電話線・封鎖人止關方向道路'},{t:'07 時',s:'s',x:'各路人馬向霧社街收攏'}],
+  force:{s:'戰士 300 餘人',sp:38,sw:'獵刀・奪得步槍 180 枝・彈藥 2 萬發',j:'駐在所警力 潰散',jp:10,jw:'零星抵抗・通訊中斷',note:'起事方短暫掌握霧社山區全境'},
+  cam:[{p:[110,80,120],l:[50,5,30]},{p:[20,50,70],l:[-10,5,-5]}], env:{fog:0.0055,sun:0xE8B080,si:0.75,amb:0.45}},
+
+ {id:4, tl:'公學校', no:'第五幕', title:'霧社公學校・運動會',
+  date:'1930.10.27 上午 8 時', sub:'事件核心・莊重呈現',
+  narr:'上午八時,霧社公學校聯合運動會正於升旗典禮中。起事族人突入會場,對在場日本人展開攻擊──共一百三十四名日人死亡,另有兩名著和服的漢人被誤認罹難。這是整起事件最沉重的一刻:被壓迫者的怒火,與無辜者的犧牲,同時銘刻在這座操場之上。',
+  events:[{t:'08:00',s:'s',x:'起事族人突入運動會會場'},{t:'上午',s:'n',x:'日人 134 名罹難,漢人 2 名遭誤殺'},{t:'上午',s:'n',x:'倖存者逃往埔里方向報訊'}],
+  force:{s:'戰士 300 餘人',sp:38,sw:'刀械近戰・會場無防備',j:'會場日警 猝不及防',jp:6,jw:'幾無武裝',note:'本節目不重現攻擊畫面,僅標示事件位置'},
+  cam:[{p:[18,34,16],l:[-6,8,-24]},{p:[-28,26,4],l:[-6,6,-24]}], env:{fog:0.005,sun:0xEDD5A8,si:0.9,amb:0.5}},
+
+ {id:5, tl:'撤回', no:'第六幕', title:'撤回山區・據險而守',
+  date:'1930.10.27 – 10.28', sub:'轉入持久抵抗',
+  narr:'莫那・魯道深知平地不可久留。族人焚毀部分設施後,攜奪得的武器彈藥撤回東方山區,以馬赫坡、波阿崙一帶的溪谷與斷崖為屏障,婦孺先行入山,戰士據守吊橋與隘口,準備迎接必然到來的反撲。',
+  events:[{t:'10.27 午後',s:'s',x:'主力撤離霧社街,退往馬赫坡方向'},{t:'10.28',s:'s',x:'據守吊橋・隘口,婦孺轉入深山'}],
+  force:{s:'戰士 300 餘人',sp:36,sw:'步槍・熟悉地形・斷崖天險',j:'埔里方面 開始集結',jp:24,jw:'警察隊先遣・等待軍隊',note:'山地是族人的主場,但彈藥有限'},
+  cam:[{p:[-10,90,100],l:[80,5,60]},{p:[100,55,130],l:[125,8,88]}], env:{fog:0.005,sun:0xE0B888,si:0.8,amb:0.45}},
+
+ {id:6, tl:'反攻', no:'第七幕', title:'日方集結・大軍壓境',
+  date:'1930.10.28 – 10.31', sub:'臺灣總督府總動員',
+  narr:'消息震動總督府。臺中州警察隊、臺南臺北應援隊,與陸軍守備隊逾四千人,自埔里沿眉溪古道推進,突破人止關峽谷。鎌田彌彥少將統一指揮,山砲、機關槍隨隊上山──國家機器的全部重量,壓向六個部落。',
+  events:[{t:'10.28',s:'j',x:'總督府下令動員,軍警自埔里推進'},{t:'10.29',s:'j',x:'突破人止關,佔領霧社街'},{t:'10.31',s:'j',x:'鎌田支隊建立前進基地,架設山砲'}],
+  force:{s:'戰士 約 300 人',sp:30,sw:'步槍・游擊戰術',j:'軍警 逾 4,000 人',jp:78,jw:'步槍・機關槍・山砲・飛行偵察',note:'兵力對比逾十倍,火力差距更為懸殊'},
+  cam:[{p:[-190,70,60],l:[-100,8,-10]},{p:[-60,60,50],l:[-18,8,-10]}], env:{fog:0.0042,sun:0xC8D4E0,si:0.9,amb:0.5}},
+
+ {id:7, tl:'追擊', no:'第八幕', title:'山地追擊・封鎖圈',
+  date:'1930.11 上旬', sub:'分進合擊・步步進逼',
+  narr:'日軍分多路縱隊沿溪谷與稜線推進,並徵調鄰近部落組成「味方蕃」襲擊隊,對起事六社形成封鎖圈。族人化整為零,以伏擊遲滯敵軍──每一座吊橋、每一處隘口,都成為以寡擊眾的戰場。',
+  events:[{t:'11 月初',s:'j',x:'多路縱隊分進合擊,建立封鎖線'},{t:'11 月初',s:'j',x:'徵調「味方蕃」襲擊隊參與圍剿'},{t:'11 月初',s:'s',x:'族人於吊橋・隘口節節伏擊'}],
+  force:{s:'戰士 不足 300',sp:26,sw:'伏擊・地形・意志',j:'軍警 4,000 餘人',jp:80,jw:'縱隊推進・封鎖線・補給線',note:'封鎖圈日漸收緊,糧彈日漸枯竭'},
+  cam:[{p:[-30,130,130],l:[50,0,40]},{p:[80,70,140],l:[90,5,55]}], env:{fog:0.0048,sun:0xBFCBD8,si:0.85,amb:0.48}},
+
+ {id:8, tl:'空襲', no:'第九幕', title:'空中偵察・飛機投彈',
+  date:'1930.11', sub:'臺灣史上首次空襲山區',
+  narr:'總督府出動飛行第八聯隊,自屏東起飛,對馬赫坡溪谷實施偵察與轟炸──並投下引發國際爭議的「特殊彈」,後世多方考證疑為糜爛性毒氣,違反國際公約。轟鳴掠過山谷,森林在火光中震顫,這是臺灣山地第一次面對來自天空的戰爭。',
+  events:[{t:'11 月',s:'j',x:'飛行第八聯隊實施偵察・投彈'},{t:'11 月',s:'j',x:'投擲「特殊彈」,疑為毒氣,國際譁然'},{t:'11 月',s:'s',x:'族人晝伏夜出,退入岩窟地帶'}],
+  force:{s:'戰士 200 餘人',sp:20,sw:'岩窟掩蔽・夜間行動',j:'軍警 + 飛行聯隊',jp:84,jw:'轟炸機・山砲・機關槍・特殊彈',note:'空襲與砲擊,將戰場推向立體化'},
+  cam:[{p:[60,150,-20],l:[100,15,70]},{p:[170,90,60],l:[130,10,95]}], env:{fog:0.0044,sun:0xC5CBD4,si:0.95,amb:0.5}},
+
+ {id:9, tl:'砲擊', no:'第十幕', title:'山砲轟擊・馬赫坡陷落',
+  date:'1930.11.01 – 11.05', sub:'火網覆蓋溪谷',
+  narr:'山砲自霧社與塔羅灣高地展開轟擊,射程圈覆蓋馬赫坡全境。十一月初,馬赫坡社在砲火中陷落焚毀,族人退入馬赫坡溪上游的斷崖岩窟,依托天險做最後的抵抗。糧盡彈絕之際,不願拖累戰士的婦孺,自縊於山林之中──史稱最沉痛的一頁。',
+  events:[{t:'11.01',s:'j',x:'山砲集火轟擊馬赫坡社'},{t:'11.05',s:'j',x:'馬赫坡陷落,族人退守岩窟'},{t:'11 月',s:'n',x:'部分婦孺自縊山林,以全戰士後顧'}],
+  force:{s:'戰士 百餘人',sp:12,sw:'岩窟天險・所剩無幾的彈藥',j:'軍警 4,000 餘人',jp:86,jw:'山砲火網・全面圍攻',note:'四十餘日山地戰,族人以血肉對抗鋼鐵'},
+  cam:[{p:[40,80,150],l:[115,8,82]},{p:[150,50,140],l:[122,10,86]}], env:{fog:0.005,sun:0xD8A882,si:0.85,amb:0.45}},
+
+ {id:10, tl:'濃霧', no:'第十一幕', title:'濃霧中的最後戰鬥',
+  date:'1930.11 下旬 – 12 月', sub:'馬赫坡岩窟・終章',
+  narr:'濃霧籠罩溪谷。殘餘戰士在岩窟與森林間輾轉游擊,抵抗持續四十餘日。最終,莫那・魯道在深山中舉槍自盡,遺骸直至一九三四年才被發現;其子達多與最後的戰士,亦於林中自縊殉死──依 Gaya,他們的靈魂走上彩虹橋,回到祖靈的家。',
+  events:[{t:'11 月下旬',s:'s',x:'殘部於濃霧山林中游擊'},{t:'12 月初',s:'s',x:'莫那・魯道深山自盡,抵抗告終'},{t:'事後',s:'n',x:'起事六社 1,236 人,倖存者不及半數'}],
+  force:{s:'最後戰士 數十人',sp:5,sw:'意志・Gaya・霧',j:'軍警 合圍',jp:88,jw:'全面搜山・封鎖',note:'四十餘日,一場注定無法獲勝、卻不得不戰的戰爭'},
+  cam:[{p:[170,32,132],l:[146,12,110]},{p:[128,26,124],l:[146,10,110]}], env:{fog:0.011,sun:0xAAB6C2,si:0.5,amb:0.35}},
+
+ {id:11, tl:'反思', no:'第十二幕', title:'餘波・彩虹橋的彼端',
+  date:'1930.12 – 1931 – 今日', sub:'第二次霧社事件・川中島',
+  narr:'事件並未隨槍聲止息。一九三一年四月,收容所遭「味方蕃」襲擊,二百餘名倖存者罹難,史稱第二次霧社事件;餘生者五百餘人被強制遷往川中島(今清流部落)。九十餘年後,霧社的山風依舊。這段歷史告訴我們:文明的真義,不在武力的高低,而在能否尊重每一個民族活出自己尊嚴的方式。',
+  events:[{t:'1931.04.25',s:'n',x:'第二次霧社事件,收容所 216 人罹難'},{t:'1931.05',s:'n',x:'餘生者強制遷居川中島(清流部落)'},{t:'1973',s:'n',x:'莫那・魯道遺骸歸葬霧社,立碑紀念'}],
+  force:{s:'倖存者 約 500 人',sp:8,sw:'記憶・語言・Gaya 的傳承',j:'殖民統治 繼續',jp:60,jw:'集團移住・同化政策',note:'倖存,本身就是一種抵抗'},
+  cam:[{p:[-60,170,200],l:[20,20,40]},{p:[60,120,180],l:[30,25,50]}], env:{fog:0.0032,sun:0xFFD9A0,si:1.15,amb:0.6}}
+];
+
+/* ═══════════ 基礎場景 ═══════════ */
+var container = document.getElementById('scene');
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(0x121C22);
+scene.fog = new THREE.FogExp2(0x9FB0BC, 0.004);
+
+var camera = new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.5, 3000);
+camera.position.set(-80,190,180);
+
+var renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+container.appendChild(renderer.domElement);
+
+var hemi = new THREE.HemisphereLight(0xC8D8E8, 0x3A4A38, 0.55);
+scene.add(hemi);
+var sun = new THREE.DirectionalLight(0xFFE9C8, 1.05);
+sun.position.set(-160, 240, -120);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.left=-260; sun.shadow.camera.right=260;
+sun.shadow.camera.top=260; sun.shadow.camera.bottom=-260;
+sun.shadow.camera.far=900; sun.shadow.bias=-0.0006;
+sun.shadow.camera.updateProjectionMatrix();
+scene.add(sun);
+
+/* ═══════════ 地形高度函式 ═══════════ */
+function hash(ix,iz){ var n=Math.sin(ix*127.1+iz*311.7)*43758.5453; return n-Math.floor(n); }
+function vnoise(x,z){
+  var ix=Math.floor(x), iz=Math.floor(z), fx=x-ix, fz=z-iz;
+  fx=fx*fx*(3-2*fx); fz=fz*fz*(3-2*fz);
+  var a=hash(ix,iz), b=hash(ix+1,iz), c=hash(ix,iz+1), d=hash(ix+1,iz+1);
+  return a+(b-a)*fx+(c-a)*fz+(a-b-c+d)*fx*fz;
+}
+function fbm(x,z){
+  var v=0, amp=0.5, f=1;
+  for(var i=0;i<5;i++){ v+=amp*vnoise(x*f, z*f); amp*=0.5; f*=2.05; }
+  return v;
+}
+function distToPoly(px,pz,poly){
+  var best=1e9;
+  for(var i=0;i<poly.length-1;i++){
+    var ax=poly[i][0], az=poly[i][1], bx=poly[i+1][0], bz=poly[i+1][1];
+    var dx=bx-ax, dz=bz-az, L2=dx*dx+dz*dz;
+    var t=L2? Math.max(0,Math.min(1,((px-ax)*dx+(pz-az)*dz)/L2)) : 0;
+    var qx=ax+t*dx, qz=az+t*dz;
+    var d=Math.sqrt((px-qx)*(px-qx)+(pz-qz)*(pz-qz));
+    if(d<best) best=d;
+  }
+  return best;
+}
+function smoothstep(a,b,x){ x=Math.max(0,Math.min(1,(x-a)/(b-a))); return x*x*(3-2*x); }
+
+function terrainH(x,z){
+  var h = 8 + 30*fbm(x*0.011+7.3, z*0.011+2.1);
+  h += 20*smoothstep(-140,180,x);                       /* 向東南深山抬升 */
+  h += 14*smoothstep(-30,140,z)*smoothstep(-40,120,x);
+  h += 22*Math.exp(-(Math.pow(x-180,2)+Math.pow(z+70,2))/9000);  /* 東北高峰 */
+  h += 18*Math.exp(-(Math.pow(x-70,2)+Math.pow(z+110,2))/8000);
+  h += 16*Math.exp(-(Math.pow(x-190,2)+Math.pow(z-150,2))/8000); /* 東南主峰 */
+  /* 西側眉溪河谷放低 */
+  h -= 10*smoothstep(-60,-190,x);
+  /* 河谷下切 */
+  var dm = distToPoly(x,z,RIVER_MAIN), dt = distToPoly(x,z,RIVER_TRIB);
+  var d = Math.min(dm,dt);
+  var carve = 1 - smoothstep(0,16,d);
+  h = h*(1-carve) + 2.0*carve;
+  /* 霧社臺地整平 */
+  var dw = Math.sqrt(Math.pow(x+16,2)+Math.pow(z+14,2));
+  var plat = 1 - smoothstep(14,34,dw);
+  h = h*(1-plat) + 15*plat;
+  /* 各聚落微整平 */
+  for(var k in LOC){
+    var L=LOC[k];
+    var dl=Math.sqrt(Math.pow(x-L.x,2)+Math.pow(z-L.z,2));
+    var f=1-smoothstep(4,11,dl);
+    if(f>0){ var th=terrainBaseCache[k]!==undefined?terrainBaseCache[k]:h; h=h*(1-f)+th*f; }
+  }
+  return h;
+}
+/* 先取樣各聚落基準高度,避免遞迴 */
+var terrainBaseCache = {};
+(function(){
+  function rawH(x,z){
+    var h = 8 + 30*fbm(x*0.011+7.3, z*0.011+2.1);
+    h += 20*smoothstep(-140,180,x);
+    h += 14*smoothstep(-30,140,z)*smoothstep(-40,120,x);
+    h += 22*Math.exp(-(Math.pow(x-180,2)+Math.pow(z+70,2))/9000);
+    h += 18*Math.exp(-(Math.pow(x-70,2)+Math.pow(z+110,2))/8000);
+    h += 16*Math.exp(-(Math.pow(x-190,2)+Math.pow(z-150,2))/8000);
+    h -= 10*smoothstep(-60,-190,x);
+    var d = Math.min(distToPoly(x,z,RIVER_MAIN), distToPoly(x,z,RIVER_TRIB));
+    var carve = 1 - smoothstep(0,16,d);
+    h = h*(1-carve) + 2.0*carve;
+    var dw = Math.sqrt(Math.pow(x+16,2)+Math.pow(z+14,2));
+    var plat = 1 - smoothstep(14,34,dw);
+    return h*(1-plat) + 15*plat;
+  }
+  for(var k in LOC) terrainBaseCache[k] = rawH(LOC[k].x, LOC[k].z);
+})();
+
+/* ═══════════ 地形網格 ═══════════ */
+var TSIZE=440, TSEG=200;
+var tGeo = new THREE.PlaneGeometry(TSIZE,TSIZE,TSEG,TSEG);
+tGeo.rotateX(-Math.PI/2);
+var pos = tGeo.attributes.position;
+var colors = new Float32Array(pos.count*3);
+var cValley=new THREE.Color(0x33452F), cSlope=new THREE.Color(0x4A5A3C),
+    cEarth=new THREE.Color(0x7A6248), cRock=new THREE.Color(0x8B8578),
+    cRiver=new THREE.Color(0x2A3E42);
+for(var i=0;i<pos.count;i++){
+  var x=pos.getX(i), z=pos.getZ(i);
+  var h=terrainH(x,z);
+  pos.setY(i,h);
+  var c=new THREE.Color();
+  if(h<3.2) c.copy(cRiver);
+  else if(h<12) c.copy(cValley).lerp(cSlope, (h-3.2)/8.8);
+  else if(h<30) c.copy(cSlope).lerp(cEarth, (h-12)/18);
+  else c.copy(cEarth).lerp(cRock, Math.min(1,(h-30)/28));
+  /* 霧社臺地淡金 */
+  var dw=Math.sqrt(Math.pow(x+16,2)+Math.pow(z+14,2));
+  if(dw<26 && h>10) c.lerp(new THREE.Color(0x9C8A5E), 0.5*(1-dw/26));
+  var n=vnoise(x*0.12,z*0.12)*0.14-0.07;
+  c.offsetHSL(0, 0, n);
+  colors[i*3]=c.r; colors[i*3+1]=c.g; colors[i*3+2]=c.b;
+}
+tGeo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+tGeo.computeVertexNormals();
+var terrain = new THREE.Mesh(tGeo, new THREE.MeshLambertMaterial({vertexColors:true}));
+terrain.receiveShadow = true;
+scene.add(terrain);
+
+/* ═══════════ 河川・道路帶 ═══════════ */
+function ribbon(poly, width, y, mat, follow){
+  var pts=[], up=new THREE.Vector3(0,1,0);
+  for(var i=0;i<poly.length;i++) pts.push(new THREE.Vector3(poly[i][0],0,poly[i][1]));
+  var curve=new THREE.CatmullRomCurve3(pts);
+  var N=90, verts=[], idx=[];
+  for(var s=0;s<=N;s++){
+    var t=s/N, p=curve.getPoint(t), tan=curve.getTangent(t);
+    var side=new THREE.Vector3().crossVectors(tan,up).normalize().multiplyScalar(width/2);
+    var yy = follow ? terrainH(p.x,p.z)+y : y;
+    verts.push(p.x-side.x, yy, p.z-side.z, p.x+side.x, yy, p.z+side.z);
+    if(s<N){ var a=s*2; idx.push(a,a+1,a+2, a+1,a+3,a+2); }
+  }
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(verts,3));
+  g.setIndex(idx); g.computeVertexNormals();
+  return new THREE.Mesh(g,mat);
+}
+var riverMat = new THREE.MeshLambertMaterial({color:0x3E6470, emissive:0x16323A, transparent:true, opacity:0.92});
+scene.add(ribbon(RIVER_MAIN, 6.5, 2.35, riverMat, false));
+scene.add(ribbon(RIVER_TRIB, 4, 2.35, riverMat, false));
+var roadMat = new THREE.MeshLambertMaterial({color:0xB9A27A, transparent:true, opacity:0.85});
+[ROAD_MAIN,ROAD_EAST,ROAD_SUKU,ROAD_NORTH].forEach(function(r){ scene.add(ribbon(r, 1.7, 0.35, roadMat, true)); });
+
+/* ═══════════ 吊橋 ═══════════ */
+BRIDGES.forEach(function(b){
+  var g=new THREE.Group();
+  var y=terrainH(b.x,b.z);
+  var deck=new THREE.Mesh(new THREE.BoxGeometry(16,0.35,1.8), new THREE.MeshLambertMaterial({color:0x8A6E4E}));
+  deck.position.y=4.2; g.add(deck);
+  var postGeo=new THREE.CylinderGeometry(0.22,0.28,6,6);
+  var postMat=new THREE.MeshLambertMaterial({color:0x6B543C});
+  [-8,8].forEach(function(px){
+    var p1=new THREE.Mesh(postGeo,postMat); p1.position.set(px,5.2,0.9); g.add(p1);
+    var p2=p1.clone(); p2.position.z=-0.9; g.add(p2);
+  });
+  var cableMat=new THREE.LineBasicMaterial({color:0xD8C9A8});
+  [-0.9,0.9].forEach(function(cz){
+    var cp=[]; for(var s=0;s<=16;s++){ var t=s/16; cp.push(new THREE.Vector3(-8+16*t, 8-Math.sin(t*Math.PI)*2.6, cz)); }
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(cp), cableMat));
+  });
+  g.position.set(b.x, y-0.5, b.z); g.rotation.y=b.rot;
+  scene.add(g);
+});
+
+/* ═══════════ 文字標籤 Sprite ═══════════ */
+function labelSprite(main, sub, colorHex, scale){
+  var cv=document.createElement('canvas'); cv.width=512; cv.height=150;
+  var ctx=cv.getContext('2d');
+  ctx.textAlign='center';
+  ctx.shadowColor='rgba(0,0,0,.95)'; ctx.shadowBlur=10;
+  ctx.font='700 46px "Noto Serif TC", serif';
+  ctx.fillStyle=colorHex; ctx.fillText(main,256,58);
+  if(sub){ ctx.font='400 26px "Noto Sans TC", sans-serif'; ctx.fillStyle='rgba(237,228,208,.85)'; ctx.fillText(sub,256,102); }
+  var tex=new THREE.CanvasTexture(cv);
+  var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false}));
+  var s=scale||1; sp.scale.set(26*s, 7.6*s, 1);
+  return sp;
+}
+
+/* ═══════════ 圖騰旗幟 ═══════════ */
+function totemTexture(kind){
+  var cv=document.createElement('canvas'); cv.width=256; cv.height=170;
+  var ctx=cv.getContext('2d');
+  var grd=ctx.createLinearGradient(0,0,256,0);
+  grd.addColorStop(0,'#6E1A14'); grd.addColorStop(.55,'#A63A2B'); grd.addColorStop(1,'#8B4A32');
+  ctx.fillStyle=grd; ctx.fillRect(0,0,256,170);
+  /* 織紋邊框 */
+  ctx.fillStyle='#EDE4D0';
+  for(var i=0;i<16;i++){ ctx.fillRect(i*16+2,4,8,8); ctx.fillRect(i*16+2,158,8,8); }
+  ctx.strokeStyle='#EDE4D0'; ctx.fillStyle='#EDE4D0'; ctx.lineWidth=7; ctx.lineCap='round';
+  ctx.save(); ctx.translate(128,88);
+  if(kind==='eye'){            /* 祖靈之眼:菱形紋 */
+    ctx.beginPath(); ctx.moveTo(0,-44); ctx.lineTo(46,0); ctx.lineTo(0,44); ctx.lineTo(-46,0); ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-24); ctx.lineTo(25,0); ctx.lineTo(0,24); ctx.lineTo(-25,0); ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,0,7,0,7); ctx.fill();
+  } else if(kind==='rainbow'){ /* 彩虹橋 */
+    var cols=['#EDE4D0','#C9A961','#D9846F'];
+    for(var r=0;r<3;r++){ ctx.strokeStyle=cols[r]; ctx.beginPath(); ctx.arc(0,36,52-r*12,Math.PI,0); ctx.stroke(); }
+    ctx.strokeStyle='#EDE4D0';
+  } else if(kind==='knife'){   /* 獵刀 */
+    ctx.rotate(-0.6);
+    ctx.beginPath(); ctx.moveTo(-40,10); ctx.quadraticCurveTo(0,-26,44,-8); ctx.quadraticCurveTo(6,-4,-32,20); ctx.closePath(); ctx.fill();
+    ctx.fillRect(-56,6,18,10);
+  } else if(kind==='mountain'){/* 山與樹 */
+    ctx.beginPath(); ctx.moveTo(-52,34); ctx.lineTo(-14,-26); ctx.lineTo(10,8); ctx.lineTo(30,-36); ctx.lineTo(56,34); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-30,34); ctx.lineTo(-30,14); ctx.stroke();
+  } else if(kind==='weave'){   /* 織紋條帶 */
+    for(var w=-2;w<=2;w++){ ctx.beginPath(); ctx.moveTo(-56,w*17); ctx.lineTo(-20,w*17-13); ctx.lineTo(16,w*17); ctx.lineTo(52,w*17-13); ctx.stroke(); }
+  } else {                     /* spirit:祖靈符號(人形) */
+    ctx.beginPath(); ctx.arc(0,-30,13,0,7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-16); ctx.lineTo(0,22); ctx.moveTo(-26,-2); ctx.lineTo(26,-2);
+    ctx.moveTo(0,22); ctx.lineTo(-20,46); ctx.moveTo(0,22); ctx.lineTo(20,46); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-46,-44); ctx.lineTo(-32,-44); ctx.moveTo(46,-44); ctx.lineTo(32,-44); ctx.stroke();
+  }
+  ctx.restore();
+  return new THREE.CanvasTexture(cv);
+}
+function japanFlagTexture(txt){
+  var cv=document.createElement('canvas'); cv.width=256; cv.height=170;
+  var ctx=cv.getContext('2d');
+  ctx.fillStyle='#E8EAEC'; ctx.fillRect(0,0,256,170);
+  ctx.strokeStyle='#3D6B8E'; ctx.lineWidth=12; ctx.strokeRect(6,6,244,158);
+  ctx.fillStyle='#B0332A'; ctx.beginPath(); ctx.arc(128,72,36,0,7); ctx.fill();
+  ctx.fillStyle='#27455E'; ctx.font='900 44px "Noto Serif TC",serif'; ctx.textAlign='center';
+  ctx.fillText(txt,128,152);
+  return new THREE.CanvasTexture(cv);
+}
+function makeFlag(tex, x, z, h){
+  var g=new THREE.Group();
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.2,12,6), new THREE.MeshLambertMaterial({color:0x5A4A38}));
+  pole.position.y=6; g.add(pole);
+  var cloth=new THREE.Mesh(new THREE.PlaneGeometry(7.2,4.8,8,1),
+    new THREE.MeshLambertMaterial({map:tex, side:THREE.DoubleSide}));
+  cloth.position.set(3.7,9.4,0); g.add(cloth);
+  cloth.userData.wave=Math.random()*6;
+  flagCloths.push(cloth);
+  g.position.set(x,h,z);
+  return g;
+}
+var flagCloths=[];
+
+/* ═══════════ 聚落・建物 ═══════════ */
+var hutMatS=new THREE.MeshLambertMaterial({color:0x7A5A3E});
+var roofMatS=new THREE.MeshLambertMaterial({color:0x4A3A2A});
+var bldMatN=new THREE.MeshLambertMaterial({color:0xD8CDB4});
+var roofMatN=new THREE.MeshLambertMaterial({color:0x8A7A5E});
+function hutCluster(x,z,n,seed){
+  var g=new THREE.Group(); var h=terrainH(x,z);
+  for(var i=0;i<n;i++){
+    var a=hash(seed+i,seed*3)*6.28, r=2+hash(seed*7,i)*7;
+    var hx=Math.cos(a)*r, hz=Math.sin(a)*r*0.8;
+    var hh=terrainH(x+hx,z+hz);
+    var body=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.6,2), hutMatS);
+    body.position.set(hx,hh-h+0.8,hz); body.rotation.y=a; body.castShadow=true; g.add(body);
+    var roof=new THREE.Mesh(new THREE.ConeGeometry(2.1,1.4,4), roofMatS);
+    roof.position.set(hx,hh-h+2.2,hz); roof.rotation.y=a+0.78; g.add(roof);
+  }
+  g.position.set(x,h,z); scene.add(g); return g;
+}
+/* 霧社街:整齊街屋 */
+(function(){
+  var h=terrainH(LOC.wushe.x,LOC.wushe.z);
+  var g=new THREE.Group();
+  for(var i=0;i<9;i++){
+    var bx=(i%3)*5-5, bz=Math.floor(i/3)*5-5;
+    var b=new THREE.Mesh(new THREE.BoxGeometry(3.4,2.4,3), bldMatN);
+    b.position.set(bx,1.2,bz); b.castShadow=true; g.add(b);
+    var r=new THREE.Mesh(new THREE.ConeGeometry(2.7,1.5,4), roofMatN);
+    r.position.set(bx,3.1,bz); r.rotation.y=0.78; g.add(r);
+  }
+  g.position.set(LOC.wushe.x,h,LOC.wushe.z); scene.add(g);
+})();
+/* 公學校:長屋 + 操場 */
+(function(){
+  var h=terrainH(LOC.school.x,LOC.school.z);
+  var g=new THREE.Group();
+  var b=new THREE.Mesh(new THREE.BoxGeometry(12,2.6,3.6), bldMatN);
+  b.position.y=1.3; b.castShadow=true; g.add(b);
+  var r=new THREE.Mesh(new THREE.BoxGeometry(12.6,0.8,4.4), roofMatN);
+  r.position.y=3; g.add(r);
+  var yard=new THREE.Mesh(new THREE.CircleGeometry(8,28),
+    new THREE.MeshLambertMaterial({color:0xC9B98E, transparent:true, opacity:0.9}));
+  yard.rotation.x=-Math.PI/2; yard.position.set(0,0.15,8); g.add(yard);
+  var track=new THREE.Mesh(new THREE.RingGeometry(6.4,7.2,32),
+    new THREE.MeshBasicMaterial({color:0xEDE4D0, transparent:true, opacity:0.7}));
+  track.rotation.x=-Math.PI/2; track.position.set(0,0.22,8); g.add(track);
+  g.position.set(LOC.school.x,h,LOC.school.z); scene.add(g);
+})();
+/* 六社 + 旗 + 標籤 */
+var villageKeys=['drodux','gungu','truwan','suku','boarung','mhebu'];
+villageKeys.forEach(function(k,i){
+  var L=LOC[k], h=terrainH(L.x,L.z);
+  hutCluster(L.x,L.z, k==='mhebu'?10:7, i*13+5);
+  scene.add(makeFlag(totemTexture(L.totem), L.x-4, L.z-3, h));
+  var lb=labelSprite(L.name, L.sub, '#E8A08A', k==='mhebu'?1.15:0.95);
+  lb.position.set(L.x, h+17, L.z); scene.add(lb);
+});
+/* 中立地點標籤 */
+[['wushe','#F2E9D6',1.1],['school','#F2E9D6',0.95],['renzhi','#D9C9A0',0.9],['puli','#D9C9A0',0.9],['cave','#E8A08A',0.95]].forEach(function(a){
+  var L=LOC[a[0]], h=terrainH(L.x,L.z);
+  var lb=labelSprite(L.name, L.sub, a[1], a[2]);
+  lb.position.set(L.x, h+15, L.z); scene.add(lb);
+});
+/* 莫那・魯道 人物標籤 */
+var monaLabel=labelSprite('莫那・魯道','馬赫坡社頭目・起事領袖','#F2C9A0',1.2);
+monaLabel.position.set(LOC.mhebu.x, terrainH(LOC.mhebu.x,LOC.mhebu.z)+26, LOC.mhebu.z);
+scene.add(monaLabel);
+/* 鎌田指揮部標籤(第七幕後顯示) */
+var kamataLabel=labelSprite('鎌田彌彥支隊','日方統一指揮部','#9FC0DA',1.05);
+kamataLabel.position.set(LOC.wushe.x, terrainH(LOC.wushe.x,LOC.wushe.z)+24, LOC.wushe.z);
+kamataLabel.material.opacity=0; scene.add(kamataLabel);
+/* 駐在所 */
+var postGroups=[];
+POSTS.forEach(function(p){
+  var h=terrainH(p.x,p.z), g=new THREE.Group();
+  var b=new THREE.Mesh(new THREE.BoxGeometry(2.8,2,2.4), new THREE.MeshLambertMaterial({color:0xB8C2CA}));
+  b.position.y=1; b.castShadow=true; g.add(b);
+  var r=new THREE.Mesh(new THREE.ConeGeometry(2.2,1.2,4), new THREE.MeshLambertMaterial({color:0x5C6B78}));
+  r.position.y=2.6; r.rotation.y=0.78; g.add(r);
+  g.add(makeFlag(japanFlagTexture('警'), 2.6, 1.5, 0));
+  g.position.set(p.x,h,p.z);
+  var lb=labelSprite(p.name,'', '#AEC6DA', 0.62);
+  lb.position.set(0,9,0); g.add(lb);
+  scene.add(g); postGroups.push(g);
+});
+/* 岩窟 */
+(function(){
+  var L=LOC.cave, h=terrainH(L.x,L.z);
+  var rock=new THREE.Mesh(new THREE.DodecahedronGeometry(6,0),
+    new THREE.MeshLambertMaterial({color:0x6E6A60}));
+  rock.position.set(L.x,h+2.5,L.z); rock.scale.set(1.4,0.9,1); rock.castShadow=true; scene.add(rock);
+})();
+
+/* ═══════════ 森林(Instanced) ═══════════ */
+(function(){
+  var COUNT = REDUCED? 500 : 1100;
+  var trunkG=new THREE.CylinderGeometry(0.14,0.2,1.6,5);
+  var folG=new THREE.ConeGeometry(1.15,3.4,6);
+  var trunkM=new THREE.MeshLambertMaterial({color:0x4A3A2C});
+  var folM=new THREE.MeshLambertMaterial({color:0x2F4A2E});
+  var trunks=new THREE.InstancedMesh(trunkG,trunkM,COUNT);
+  var fols=new THREE.InstancedMesh(folG,folM,COUNT);
+  var m=new THREE.Matrix4(), q=new THREE.Quaternion(), s=new THREE.Vector3(), p=new THREE.Vector3();
+  var placed=0, tries=0, col=new THREE.Color();
+  while(placed<COUNT && tries<COUNT*8){
+    tries++;
+    var x=(hash(tries,3.7)-0.5)*TSIZE*0.96, z=(hash(tries*1.3,9.1)-0.5)*TSIZE*0.96;
+    var h=terrainH(x,z);
+    if(h<4.5) continue;
+    var near=false;
+    for(var k in LOC){ if(Math.pow(x-LOC[k].x,2)+Math.pow(z-LOC[k].z,2)<170){near=true;break;} }
+    if(near) continue;
+    if(distToPoly(x,z,ROAD_MAIN)<3.5||distToPoly(x,z,ROAD_EAST)<3.5) continue;
+    var sc=0.7+hash(tries,5.5)*1.1;
+    s.set(sc,sc,sc); q.setFromAxisAngle(new THREE.Vector3(0,1,0), hash(tries,8)*6.28);
+    p.set(x,h+0.8*sc,z); m.compose(p,q,s); trunks.setMatrixAt(placed,m);
+    p.set(x,h+(0.8+2.2)*sc,z); m.compose(p,q,s); fols.setMatrixAt(placed,m);
+    col.setHSL(0.29+hash(tries,2)*0.05, 0.32, 0.16+hash(tries,4)*0.1);
+    fols.setColorAt(placed,col);
+    placed++;
+  }
+  trunks.count=placed; fols.count=placed;
+  trunks.castShadow=true; fols.castShadow=true;
+  scene.add(trunks); scene.add(fols);
+})();
+
+/* ═══════════ 霧氣・雲層 ═══════════ */
+function softDiscTexture(rgb){
+  var cv=document.createElement('canvas'); cv.width=cv.height=128;
+  var ctx=cv.getContext('2d');
+  var g=ctx.createRadialGradient(64,64,4,64,64,64);
+  g.addColorStop(0,'rgba('+rgb+',.85)'); g.addColorStop(.5,'rgba('+rgb+',.3)'); g.addColorStop(1,'rgba('+rgb+',0)');
+  ctx.fillStyle=g; ctx.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(cv);
+}
+var fogTex=softDiscTexture('222,230,235');
+var fogSprites=[];
+for(var fi=0;fi<26;fi++){
+  var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:fogTex, transparent:true, opacity:0.16, depthWrite:false}));
+  var fx=(Math.random()-0.5)*380, fz=(Math.random()-0.5)*340;
+  sp.position.set(fx, terrainH(fx,fz)+5+Math.random()*7, fz);
+  sp.scale.set(55+Math.random()*70, 22+Math.random()*20, 1);
+  sp.userData={sp:0.6+Math.random()*1.2, base:sp.material.opacity};
+  scene.add(sp); fogSprites.push(sp);
+}
+var cloudTex=softDiscTexture('235,238,242');
+var clouds=[];
+for(var ci=0;ci<9;ci++){
+  var cl=new THREE.Sprite(new THREE.SpriteMaterial({map:cloudTex, transparent:true, opacity:0.3, depthWrite:false}));
+  cl.position.set((Math.random()-0.5)*500, 95+Math.random()*45, (Math.random()-0.5)*440);
+  cl.scale.set(120+Math.random()*100, 40+Math.random()*26, 1);
+  cl.userData={sp:1.5+Math.random()*2};
+  scene.add(cl); clouds.push(cl);
+}
+
+/* ═══════════ 動態物件:箭頭 ═══════════ */
+function makeArrow(points, colorHex, w){
+  var v=points.map(function(p){ return new THREE.Vector3(p[0], terrainH(p[0],p[1])+2.6, p[1]); });
+  var curve=new THREE.CatmullRomCurve3(v);
+  var g=new THREE.Group();
+  var tube=new THREE.Mesh(new THREE.TubeGeometry(curve, 40, w||0.55, 6, false),
+    new THREE.MeshBasicMaterial({color:colorHex, transparent:true, opacity:0}));
+  g.add(tube);
+  var end=curve.getPoint(1), tan=curve.getTangent(1);
+  var cone=new THREE.Mesh(new THREE.ConeGeometry((w||0.55)*3.2, 4.2, 8),
+    new THREE.MeshBasicMaterial({color:colorHex, transparent:true, opacity:0}));
+  cone.position.copy(end);
+  cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), tan.normalize());
+  g.add(cone);
+  g.userData={mats:[tube.material,cone.material], target:0, pulse:Math.random()*6};
+  scene.add(g); arrows.push(g);
+  return g;
+}
+var arrows=[];
+function P(k){ return [LOC[k].x, LOC[k].z]; }
+/* 第四幕:分襲駐在所(赭紅) */
+var arrAttack=[
+  makeArrow([P('mhebu'),[114,78]], C.seediqRed),
+  makeArrow([P('boarung'),[84,34]], C.seediqRed),
+  makeArrow([P('gungu'),[10,36]], C.seediqRed),
+  makeArrow([P('truwan'),[50,4]], C.seediqRed),
+  makeArrow([P('suku'),[18,50],P('gungu')], C.seediqRed),
+  makeArrow([P('drodux'),[2,-30],P('wushe')], C.seediqRed),
+  makeArrow([P('truwan'),[30,2],[4,-4],P('wushe')], C.seediqRed)
+];
+/* 第五幕:向公學校(深紅) */
+var arrSchool=[ makeArrow([P('wushe'),P('school')], C.seediqDeep, 0.7) ];
+/* 第六幕:撤回山區 */
+var arrRetreat=[
+  makeArrow([P('wushe'),[8,-2],[34,4],P('truwan'),[74,22],P('boarung'),[106,62],P('mhebu')], C.seediqEarth, 0.6),
+  makeArrow([P('gungu'),[18,52],P('suku')], C.seediqEarth, 0.5)
+];
+/* 第七幕:日方推進 */
+var arrJapan=[
+  makeArrow([P('puli'),[-150,-20],P('renzhi'),[-80,-12],P('wushe')], C.japanBlue, 0.8),
+  makeArrow([[-186,-40],[-150,-34],[-110,-30],[-60,-24],P('wushe')], C.japanNavy, 0.55)
+];
+/* 第八幕:山地追擊 */
+var arrPursuit=[
+  makeArrow([P('wushe'),[8,-2],[34,4],P('truwan')], C.japanBlue, 0.6),
+  makeArrow([P('wushe'),[2,20],P('gungu'),[18,52],P('suku')], C.japanBlue, 0.6),
+  makeArrow([P('truwan'),[74,22],P('boarung')], C.japanBlue, 0.6),
+  makeArrow([P('boarung'),[106,62],P('mhebu')], C.japanNavy, 0.7),
+  makeArrow([P('drodux'),[10,-40],P('wushe')], C.japanSteel, 0.5)
+];
+/* 補給線(鋼灰虛線感:細管) */
+var arrSupply=[ makeArrow([P('puli'),[-150,-22],P('renzhi'),[-80,-12],P('wushe')], C.japanSteel, 0.3) ];
+/* 第十二幕:遷徙川中島(淡金) */
+var arrExile=[ makeArrow([P('wushe'),[-70,-8],[-130,-12],[-186,-18]], C.gold, 0.6) ];
+
+/* ═══════════ 封鎖圈・砲程圈・航線 ═══════════ */
+function ringMesh(x,z,r,colorHex,dashed){
+  var seg=100, pts=[];
+  for(var i=0;i<=seg;i++){
+    var a=i/seg*Math.PI*2, px=x+Math.cos(a)*r, pz=z+Math.sin(a)*r;
+    pts.push(new THREE.Vector3(px, terrainH(px,pz)+2.2, pz));
+  }
+  var geo=new THREE.BufferGeometry().setFromPoints(pts);
+  var mat = dashed
+    ? new THREE.LineDashedMaterial({color:colorHex, dashSize:5, gapSize:3.5, transparent:true, opacity:0})
+    : new THREE.LineBasicMaterial({color:colorHex, transparent:true, opacity:0});
+  var line=new THREE.Line(geo,mat);
+  if(dashed) line.computeLineDistances();
+  line.userData={mat:mat, target:0, pulse:Math.random()*6};
+  scene.add(line); rings.push(line);
+  return line;
+}
+var rings=[];
+var blockade = ringMesh(70, 40, 92, C.gold, true);          /* 封鎖圈 */
+var artRing1 = ringMesh(LOC.wushe.x, LOC.wushe.z, 70, 0x7FA8C7, false);  /* 山砲射程 */
+var artRing2 = ringMesh(56, 8, 62, 0x7FA8C7, false);
+var artRing3 = ringMesh(90, 40, 46, 0x9FC0DA, false);
+
+/* ═══════════ 山砲 ═══════════ */
+var cannons=[];
+[[LOC.wushe.x+6, LOC.wushe.z+6],[52,12],[86,36]].forEach(function(cp){
+  var h=terrainH(cp[0],cp[1]), g=new THREE.Group();
+  var base=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.5,0.8,8), new THREE.MeshLambertMaterial({color:0x44515C}));
+  base.position.y=0.4; g.add(base);
+  var barrel=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.34,4.6,7), new THREE.MeshLambertMaterial({color:0x5C6B78}));
+  barrel.rotation.z=-0.9; barrel.position.set(1.6,1.9,0); g.add(barrel);
+  g.position.set(cp[0],h,cp[1]);
+  g.visible=false; g.lookAt(LOC.mhebu.x,h,LOC.mhebu.z);
+  scene.add(g); cannons.push(g);
+});
+
+/* ═══════════ 飛機 ═══════════ */
+function makePlane(){
+  var g=new THREE.Group();
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.32,5.2,7),
+    new THREE.MeshLambertMaterial({color:0x8A97A2}));
+  body.rotation.x=Math.PI/2; g.add(body);
+  var wing=new THREE.Mesh(new THREE.BoxGeometry(9.4,0.2,1.6),
+    new THREE.MeshLambertMaterial({color:0x76848F}));
+  wing.position.y=0.4; g.add(wing);
+  var tail=new THREE.Mesh(new THREE.BoxGeometry(3,0.16,1),
+    new THREE.MeshLambertMaterial({color:0x76848F}));
+  tail.position.set(0,0.3,2.3); g.add(tail);
+  var disc=new THREE.Mesh(new THREE.CircleGeometry(0.7,10),
+    new THREE.MeshBasicMaterial({color:0xB0332A, side:THREE.DoubleSide}));
+  disc.rotation.x=-Math.PI/2; disc.position.set(3.4,0.52,0); g.add(disc);
+  var disc2=disc.clone(); disc2.position.x=-3.4; g.add(disc2);
+  g.visible=false; scene.add(g);
+  return g;
+}
+var planes=[makePlane(), makePlane()];
+planes[0].userData={cx:110,cz:80,r:52,h:72,sp:0.32,ph:0};
+planes[1].userData={cx:120,cz:88,r:70,h:86,sp:-0.24,ph:2.5};
+/* 航線圈 */
+var flightRing1=(function(){
+  var pts=[]; for(var i=0;i<=90;i++){var a=i/90*6.283; pts.push(new THREE.Vector3(110+Math.cos(a)*52,72,80+Math.sin(a)*52));}
+  var l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineDashedMaterial({color:0x9FC0DA,dashSize:4,gapSize:3,transparent:true,opacity:0}));
+  l.computeLineDistances(); l.userData={mat:l.material,target:0,pulse:0};
+  scene.add(l); rings.push(l); return l;
+})();
+
+/* ═══════════ 火焰・煙・閃光 ═══════════ */
+var fireTex=softDiscTexture('255,150,60');
+var smokeTex=softDiscTexture('120,120,120');
+var flashTex=softDiscTexture('255,236,180');
+var fires=[];
+function makeFire(x,z,scale){
+  var h=terrainH(x,z), g=new THREE.Group();
+  var glow=new THREE.Sprite(new THREE.SpriteMaterial({map:fireTex, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending}));
+  glow.scale.set(7*scale,7*scale,1); glow.position.y=2.4; g.add(glow);
+  var light=new THREE.PointLight(C.fire, 0, 34*scale); light.position.y=4; g.add(light);
+  var N=14, parr=new Float32Array(N*3), sarr=[];
+  for(var i=0;i<N;i++){ parr[i*3]=(Math.random()-0.5)*3*scale; parr[i*3+1]=Math.random()*9; parr[i*3+2]=(Math.random()-0.5)*3*scale; sarr.push(0.5+Math.random()); }
+  var pg=new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(parr,3));
+  var pm=new THREE.PointsMaterial({map:smokeTex, size:5.5*scale, transparent:true, opacity:0, depthWrite:false, color:0x9A9A9A});
+  var smoke=new THREE.Points(pg,pm); smoke.position.y=3; g.add(smoke);
+  g.position.set(x,h,z);
+  g.userData={glow:glow, light:light, smoke:smoke, speeds:sarr, target:0, scale:scale};
+  scene.add(g); fires.push(g);
+  return g;
+}
+var firesPosts = POSTS.slice(1).map(function(p){ return makeFire(p.x,p.z,0.8); });
+var fireWushe  = makeFire(LOC.wushe.x+3, LOC.wushe.z+2, 1.0);
+var firesMhebu = [makeFire(LOC.mhebu.x,LOC.mhebu.z,1.5), makeFire(LOC.mhebu.x+7,LOC.mhebu.z+5,1.1), makeFire(LOC.boarung.x,LOC.boarung.z,1.0)];
+
+/* 槍炮閃光(隨機出現於指定區) */
+var flashPool=[];
+for(var fp=0;fp<16;fp++){
+  var f=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending}));
+  f.scale.set(4,4,1); scene.add(f); flashPool.push({sp:f, life:0});
+}
+var flashZones=[];   /* [{x,z,r}] 依幕更新 */
+/* 炸彈爆閃 */
+var bombPool=[];
+for(var bp=0;bp<6;bp++){
+  var b=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending}));
+  b.scale.set(1,1,1); scene.add(b); bombPool.push({sp:b, life:0});
+}
+var bombActive=false, bombTimer=0;
+
+/* ═══════════ 彩虹橋(終幕) ═══════════ */
+var rainbow=(function(){
+  var g=new THREE.Group();
+  var cols=[0xA63A2B,0xC9A961,0xEDE4D0,0x5E8C6A,0x3D6B8E];
+  cols.forEach(function(cc,i){
+    var geo=new THREE.TorusGeometry(150-i*7, 1.6, 6, 60, Math.PI);
+    var m=new THREE.MeshBasicMaterial({color:cc, transparent:true, opacity:0, depthWrite:false});
+    var t=new THREE.Mesh(geo,m); g.add(t);
+  });
+  g.position.set(40,6,60); g.rotation.y=0.5;
+  g.userData={target:0};
+  scene.add(g); return g;
+})();
+
+/* ═══════════ 各幕動態設定 ═══════════ */
+function setArrows(list, on){ list.forEach(function(a){ a.userData.target = on?1:0; }); }
+function setFires(list, on){ list.forEach(function(f){ f.userData.target = on?1:0; }); }
+var PHASE_FX = [
+  function(){ flashZones=[]; },                                                     /* 0 */
+  function(){ flashZones=[]; },                                                     /* 1 */
+  function(){ flashZones=[]; },                                                     /* 2 */
+  function(){ setArrows(arrAttack,1); setFires(firesPosts,1); fireWushe.userData.target=1;
+              flashZones=POSTS.map(function(p){return {x:p.x,z:p.z,r:6};}); },      /* 3 */
+  function(){ setArrows(arrSchool,1); fireWushe.userData.target=1;
+              flashZones=[{x:LOC.school.x,z:LOC.school.z,r:7}]; },                  /* 4 */
+  function(){ setArrows(arrRetreat,1); flashZones=[]; },                            /* 5 */
+  function(){ setArrows(arrJapan,1); kamataLabel.material.opacity=1;
+              flashZones=[{x:LOC.renzhi.x,z:LOC.renzhi.z,r:8}]; },                  /* 6 */
+  function(){ setArrows(arrPursuit,1); setArrows(arrSupply,1);
+              blockade.userData.target=1; kamataLabel.material.opacity=1;
+              flashZones=[{x:56,z:8,r:10},{x:90,z:40,r:10},{x:32,z:64,r:8}]; },     /* 7 */
+  function(){ planes.forEach(function(p){p.visible=true;}); flightRing1.userData.target=1;
+              blockade.userData.target=1; bombActive=true; setArrows(arrSupply,1);
+              kamataLabel.material.opacity=1;
+              flashZones=[{x:118,z:82,r:12}]; },                                    /* 8 */
+  function(){ cannons.forEach(function(c){c.visible=true;});
+              artRing1.userData.target=1; artRing2.userData.target=1; artRing3.userData.target=1;
+              setFires(firesMhebu,1); blockade.userData.target=1; bombActive=true;
+              planes.forEach(function(p){p.visible=true;}); flightRing1.userData.target=0.6;
+              kamataLabel.material.opacity=1;
+              flashZones=[{x:118,z:82,r:14}]; },                                    /* 9 */
+  function(){ setFires([firesMhebu[0]],1); blockade.userData.target=1;
+              flashZones=[{x:LOC.cave.x,z:LOC.cave.z,r:9}]; },                      /* 10 */
+  function(){ setArrows(arrExile,1); rainbow.userData.target=1; flashZones=[]; }    /* 11 */
+];
+function resetFX(){
+  arrows.forEach(function(a){ a.userData.target=0; });
+  rings.forEach(function(r){ r.userData.target=0; });
+  fires.forEach(function(f){ f.userData.target=0; });
+  cannons.forEach(function(c){ c.visible=false; });
+  planes.forEach(function(p){ p.visible=false; });
+  kamataLabel.material.opacity=0;
+  rainbow.userData.target=0;
+  bombActive=false; flashZones=[];
+}
+
+/* ═══════════ HUD 更新 ═══════════ */
+var $ = function(id){ return document.getElementById(id); };
+var curPhase=-1, phaseT=0, playing=true;
+var PHASE_DUR = 24;   /* 每幕秒數(自動播放) */
+
+/* 時間軸節點 */
+var tlTrack=$('tlTrack');
+PHASES.forEach(function(p,i){
+  var b=document.createElement('button');
+  b.className='tl-node'; b.setAttribute('aria-label', p.no+' '+p.title);
+  b.innerHTML='<span class="tick"></span><span class="prog"></span><span class="tl-label">'+p.tl+'</span>';
+  b.addEventListener('click', function(){ gotoPhase(i,true); });
+  tlTrack.appendChild(b);
+});
+var tlNodes=[].slice.call(tlTrack.children);
+
+var narrFull='', narrIdx=0, narrTimer=null;
+function typeNarr(text){
+  clearInterval(narrTimer);
+  narrFull=text; narrIdx=0; $('narrText').textContent='';
+  if(REDUCED){ $('narrText').textContent=text; return; }
+  narrTimer=setInterval(function(){
+    narrIdx+=2;
+    $('narrText').textContent=narrFull.slice(0,narrIdx);
+    if(narrIdx>=narrFull.length) clearInterval(narrTimer);
+  }, 34);
+}
+function gotoPhase(i, manual){
+  i=Math.max(0,Math.min(PHASES.length-1,i));
+  if(i===curPhase && !manual) return;
+  curPhase=i; phaseT=0;
+  var p=PHASES[i];
+  resetFX(); PHASE_FX[i]();
+  /* HUD */
+  $('dateBig').textContent=p.date;
+  $('dateSub').textContent=p.sub;
+  $('narrTitle').innerHTML='<span class="ph-no">'+p.no+'</span>'+p.title;
+  typeNarr(p.narr);
+  var eb=$('eventBody'); eb.innerHTML='';
+  p.events.forEach(function(e,k){
+    var d=document.createElement('div');
+    d.className='evt '+(e.s==='s'?'seediq':e.s==='j'?'japan':'');
+    d.style.animationDelay=(k*0.55)+'s';
+    d.innerHTML='<span class="evt-time">'+e.t+'</span>'+e.x;
+    eb.appendChild(d);
+  });
+  $('numS').textContent=p.force.s; $('numJ').textContent=p.force.j;
+  $('barS').style.width=p.force.sp+'%'; $('barJ').style.width=p.force.jp+'%';
+  $('weapS').textContent='武器:'+p.force.sw; $('weapJ').textContent='武器:'+p.force.jw;
+  $('forceNote').textContent='※ '+p.force.note;
+  tlNodes.forEach(function(n,k){
+    n.classList.toggle('act',k===i); n.classList.toggle('done',k<i);
+    n.querySelector('.prog').style.width='0%';
+  });
+  $('reflect').classList.toggle('show', i===11 && phaseT>8);
+  /* 攝影機轉場 */
+  if(camMode==='cine') camTransition(p.cam[0]);
+  /* 環境 */
+  envTarget=p.env;
+}
+$('btnPrev').addEventListener('click',function(){ gotoPhase(curPhase-1,true); });
+$('btnNext').addEventListener('click',function(){ gotoPhase(curPhase+1,true); });
+$('btnPlay').addEventListener('click',function(){
+  playing=!playing; this.textContent=playing?'⏸':'▶';
+});
+$('reflectClose').addEventListener('click',function(){ $('reflect').classList.remove('show'); });
+$('legendBtn').addEventListener('click',function(){ $('legend').classList.toggle('show'); });
+
+/* ═══════════ 攝影機系統 ═══════════ */
+var camMode='cine';
+var camCur={p:new THREE.Vector3(-80,190,180), l:new THREE.Vector3(0,0,10)};
+var camFrom=null, camTo=null, camLerp=1;
+function camTransition(shot){
+  camFrom={p:camCur.p.clone(), l:camCur.l.clone()};
+  camTo={p:new THREE.Vector3().fromArray(shot.p), l:new THREE.Vector3().fromArray(shot.l)};
+  camLerp=0;
+}
+document.querySelectorAll('.cam-btn[data-cam]').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.cam-btn[data-cam]').forEach(function(x){x.classList.remove('act');});
+    b.classList.add('act');
+    camMode=b.dataset.cam;
+    if(camMode==='cine' && curPhase>=0){
+      var pp=PHASES[curPhase], f0=Math.min(1,phaseT/PHASE_DUR), ee0=f0*f0*(3-2*f0);
+      var A0=pp.cam[0], B0=pp.cam[1]||pp.cam[0];
+      camTransition({
+        p:[A0.p[0]+(B0.p[0]-A0.p[0])*ee0, A0.p[1]+(B0.p[1]-A0.p[1])*ee0, A0.p[2]+(B0.p[2]-A0.p[2])*ee0],
+        l:[A0.l[0]+(B0.l[0]-A0.l[0])*ee0, A0.l[1]+(B0.l[1]-A0.l[1])*ee0, A0.l[2]+(B0.l[2]-A0.l[2])*ee0]
+      });
+    }
+    if(camMode==='top'){
+      camTransition({p:[10,300,60], l:[10,0,40]});
+    }
+    if(camMode==='free'){ syncFreeFromCam(); }
+  });
+});
+/* 自由視角(自製 Orbit) */
+var free={theta:0.8, phi:1.05, r:220, cx:20, cy:10, cz:40};
+function syncFreeFromCam(){
+  var dx=camCur.p.x-free.cx, dy=camCur.p.y-free.cy, dz=camCur.p.z-free.cz;
+  free.r=Math.sqrt(dx*dx+dy*dy+dz*dz);
+  free.phi=Math.acos(Math.max(-1,Math.min(1,dy/free.r)));
+  free.theta=Math.atan2(dx,dz);
+}
+var dragging=false, panning=false, lx=0, ly=0;
+renderer.domElement.addEventListener('pointerdown',function(e){
+  if(camMode!=='free') return;
+  dragging=e.button===0; panning=e.button===2; lx=e.clientX; ly=e.clientY;
+});
+addEventListener('pointermove',function(e){
+  if(camMode!=='free'||(!dragging&&!panning)) return;
+  var dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
+  if(dragging){
+    free.theta-=dx*0.005;
+    free.phi=Math.max(0.15,Math.min(1.5,free.phi-dy*0.004));
+  } else {
+    free.cx-=Math.cos(free.theta)*dx*0.25 - Math.sin(free.theta)*dy*0.25;
+    free.cz+=Math.sin(free.theta)*dx*0.25 + Math.cos(free.theta)*dy*0.25;
+  }
+});
+addEventListener('pointerup',function(){ dragging=panning=false; });
+renderer.domElement.addEventListener('wheel',function(e){
+  if(camMode!=='free') return;
+  e.preventDefault();
+  free.r=Math.max(30,Math.min(560, free.r*(1+e.deltaY*0.001)));
+},{passive:false});
+renderer.domElement.addEventListener('contextmenu',function(e){ e.preventDefault(); });
+/* 觸控雙指縮放 */
+var pinchD=0;
+renderer.domElement.addEventListener('touchstart',function(e){
+  if(e.touches.length===2){
+    pinchD=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+  }
+},{passive:true});
+renderer.domElement.addEventListener('touchmove',function(e){
+  if(camMode==='free'&&e.touches.length===2){
+    var d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    free.r=Math.max(30,Math.min(560, free.r*(pinchD/d))); pinchD=d;
+  }
+},{passive:true});
+
+/* ═══════════ 環境(霧・光)過渡 ═══════════ */
+var envTarget=PHASES[0].env;
+var envCur={fog:0.004, sun:new THREE.Color(0xFFE9C8), si:1.05, amb:0.55};
+var skyLow=new THREE.Color(0x121C22), skyHi=new THREE.Color(0x1A2630);
+
+/* ═══════════ 主迴圈 ═══════════ */
+var clock=new THREE.Clock();
+var started=false;
+function animate(){
+  requestAnimationFrame(animate);
+  var dt=Math.min(clock.getDelta(),0.05), t=clock.elapsedTime;
+  if(!started){ renderer.render(scene,camera); return; }
+
+  /* 自動播放 */
+  if(playing && curPhase>=0){
+    phaseT+=dt;
+    var node=tlNodes[curPhase];
+    if(node) node.querySelector('.prog').style.width=Math.min(100,phaseT/PHASE_DUR*100)+'%';
+    if(curPhase===11 && phaseT>9 && phaseT<9.1) $('reflect').classList.add('show');
+    if(phaseT>=PHASE_DUR && curPhase<PHASES.length-1) gotoPhase(curPhase+1,false);
+  }
+
+  /* 環境過渡 */
+  envCur.fog += (envTarget.fog-envCur.fog)*dt*1.2;
+  scene.fog.density=envCur.fog;
+  envCur.sun.lerp(new THREE.Color(envTarget.sun), dt*1.2);
+  sun.color.copy(envCur.sun);
+  envCur.si += (envTarget.si-envCur.si)*dt*1.2; sun.intensity=envCur.si;
+  envCur.amb += (envTarget.amb-envCur.amb)*dt*1.2; hemi.intensity=envCur.amb;
+  scene.background.copy(skyLow).lerp(skyHi, 0.4+0.3*Math.sin(t*0.05));
+  scene.fog.color.copy(envCur.sun).lerp(new THREE.Color(0x9FB0BC), 0.75);
+
+  /* 攝影機 */
+  if(camMode==='free'){
+    var sp2=Math.sin(free.phi);
+    camCur.p.set(
+      free.cx+free.r*sp2*Math.sin(free.theta),
+      free.cy+free.r*Math.cos(free.phi),
+      free.cz+free.r*sp2*Math.cos(free.theta));
+    camCur.l.set(free.cx,free.cy,free.cz);
+  } else {
+    if(camLerp<1 && camTo){
+      camLerp=Math.min(1,camLerp+dt/3.2);
+      var e2=camLerp<0.5?2*camLerp*camLerp:1-Math.pow(-2*camLerp+2,2)/2;
+      camCur.p.lerpVectors(camFrom.p,camTo.p,e2);
+      camCur.l.lerpVectors(camFrom.l,camTo.l,e2);
+    } else if(camMode==='cine' && curPhase>=0){
+      /* 幕內雙鏡位緩移 */
+      var p=PHASES[curPhase], f=Math.min(1,phaseT/PHASE_DUR);
+      var A=p.cam[0], B=p.cam[1]||p.cam[0];
+      var ee=f*f*(3-2*f);
+      camCur.p.set(A.p[0]+(B.p[0]-A.p[0])*ee, A.p[1]+(B.p[1]-A.p[1])*ee, A.p[2]+(B.p[2]-A.p[2])*ee);
+      camCur.l.set(A.l[0]+(B.l[0]-A.l[0])*ee, A.l[1]+(B.l[1]-A.l[1])*ee, A.l[2]+(B.l[2]-A.l[2])*ee);
+      if(!REDUCED){
+        camCur.p.x+=Math.sin(t*0.22)*2.4; camCur.p.y+=Math.sin(t*0.3)*1.2;
+      }
+    }
+  }
+  camera.position.copy(camCur.p);
+  camera.lookAt(camCur.l);
+
+  /* 旗幟飄動 */
+  if(!REDUCED) flagCloths.forEach(function(c){ c.rotation.y=Math.sin(t*2.2+c.userData.wave)*0.16; });
+
+  /* 霧氣・雲 */
+  fogSprites.forEach(function(s){
+    s.position.x+=s.userData.sp*dt*2.2;
+    if(s.position.x>230) s.position.x=-230;
+    s.material.opacity=s.userData.base*(scene.fog.density>0.008?2.4:1);
+  });
+  clouds.forEach(function(c){
+    c.position.x+=c.userData.sp*dt*2;
+    if(c.position.x>300) c.position.x=-300;
+  });
+
+  /* 箭頭 */
+  arrows.forEach(function(a){
+    var u=a.userData;
+    var cur=u.mats[0].opacity;
+    var pulse=u.target>0 ? 0.62+0.28*Math.sin(t*3+u.pulse) : 0;
+    var goal=u.target*pulse;
+    var nv=cur+(goal-cur)*dt*3;
+    u.mats.forEach(function(m){ m.opacity=nv; });
+  });
+  /* 圈線 */
+  rings.forEach(function(r){
+    var u=r.userData;
+    var goal=u.target*(0.5+0.35*Math.sin(t*2.4+u.pulse));
+    u.mat.opacity+= (goal-u.mat.opacity)*dt*3;
+  });
+  /* 火焰 */
+  fires.forEach(function(f){
+    var u=f.userData;
+    var goal=u.target;
+    var cur=u.glow.material.opacity;
+    var nv=cur+(goal*0.9-cur)*dt*2.5;
+    u.glow.material.opacity=nv*(0.75+0.25*Math.sin(t*9+u.scale*7));
+    u.light.intensity=nv*2.2*(0.8+0.2*Math.sin(t*11));
+    u.smoke.material.opacity=nv*0.4;
+    if(nv>0.03){
+      var parr=u.smoke.geometry.attributes.position;
+      for(var i=0;i<parr.count;i++){
+        var y=parr.getY(i)+u.speeds[i]*dt*3.2;
+        if(y>10){ y=0; parr.setX(i,(Math.random()-0.5)*3*u.scale); }
+        parr.setY(i,y);
+      }
+      parr.needsUpdate=true;
+    }
+  });
+  /* 槍炮閃光 */
+  if(flashZones.length && !REDUCED){
+    flashPool.forEach(function(f){
+      if(f.life<=0){
+        if(Math.random()<dt*3){
+          var z0=flashZones[Math.floor(Math.random()*flashZones.length)];
+          var fx=z0.x+(Math.random()-0.5)*z0.r*2, fz=z0.z+(Math.random()-0.5)*z0.r*2;
+          f.sp.position.set(fx, terrainH(fx,fz)+2.2, fz);
+          f.life=0.14+Math.random()*0.12;
+          f.sp.scale.setScalar(2.5+Math.random()*3);
+        }
+      } else {
+        f.life-=dt;
+        f.sp.material.opacity=Math.max(0, f.life*6);
+      }
+    });
+  } else {
+    flashPool.forEach(function(f){ f.sp.material.opacity*=0.85; });
+  }
+  /* 飛機・投彈 */
+  planes.forEach(function(pl){
+    if(!pl.visible) return;
+    var u=pl.userData; u.ph+=u.sp*dt;
+    var px=u.cx+Math.cos(u.ph)*u.r, pz=u.cz+Math.sin(u.ph)*u.r;
+    pl.position.set(px,u.h,pz);
+    var nx=u.cx+Math.cos(u.ph+0.05*Math.sign(u.sp))*u.r, nz=u.cz+Math.sin(u.ph+0.05*Math.sign(u.sp))*u.r;
+    pl.lookAt(nx,u.h,nz);
+    pl.rotateZ(0.28*Math.sign(u.sp));
+  });
+  if(bombActive && !REDUCED){
+    bombTimer-=dt;
+    if(bombTimer<=0){
+      bombTimer=1.6+Math.random()*2.4;
+      for(var bi=0;bi<bombPool.length;bi++){
+        if(bombPool[bi].life<=0){
+          var bx=112+(Math.random()-0.5)*36, bz=82+(Math.random()-0.5)*32;
+          bombPool[bi].sp.position.set(bx, terrainH(bx,bz)+3, bz);
+          bombPool[bi].life=0.6; break;
+        }
+      }
+    }
+  }
+  bombPool.forEach(function(b){
+    if(b.life>0){
+      b.life-=dt;
+      var k=1-b.life/0.6;
+      b.sp.scale.setScalar(4+k*18);
+      b.sp.material.opacity=Math.max(0,(1-k)*0.85);
+    }
+  });
+  /* 彩虹橋 */
+  (function(){
+    var u=rainbow.userData;
+    rainbow.children.forEach(function(m,i){
+      var goal=u.target*(0.5-i*0.05);
+      m.material.opacity+=(goal-m.material.opacity)*dt*1.4;
+    });
+  })();
+
+  renderer.render(scene,camera);
+}
+animate();
+
+/* ═══════════ 進場:片頭影片 → 3D 節目 ═══════════ */
+var YT_ID='4aQlXsMswSM';
+var showStarted=false, ytPlayer=null, ytWatchdog=null;
+
+function startShow(){
+  if(showStarted) return;
+  showStarted=true;
+  /* 關閉影片 */
+  var ov=$('ytOverlay');
+  if(ytPlayer && ytPlayer.stopVideo){ try{ ytPlayer.stopVideo(); }catch(e){} }
+  clearTimeout(ytWatchdog);
+  ov.classList.add('hide');
+  setTimeout(function(){ ov.classList.remove('show'); ov.style.display='none'; },1200);
+  /* 進入節目 */
+  document.querySelectorAll('.hud').forEach(function(h){ h.classList.remove('off'); });
+  started=true;
+  gotoPhase(0,true);
+}
+
+function playIntroVideo(){
+  var ov=$('ytOverlay');
+  ov.classList.add('show');
+  /* 動態載入 IFrame API;失敗或逾時則直接進節目 */
+  ytWatchdog=setTimeout(function(){ if(!ytPlayer) startShow(); }, 8000);
+  function buildPlayer(){
+    clearTimeout(ytWatchdog);
+    ytPlayer=new YT.Player('ytFrame',{
+      videoId:YT_ID,
+      playerVars:{autoplay:1, rel:0, playsinline:1, modestbranding:1},
+      events:{
+        onReady:function(e){
+          e.target.playVideo();
+          /* 若 3 秒後仍未播放(自動播放被擋),顯示點擊提示 */
+          setTimeout(function(){
+            if(ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState()!==YT.PlayerState.PLAYING){
+              $('ytHint').classList.add('show');
+            }
+          },3000);
+        },
+        onStateChange:function(e){
+          if(e.data===YT.PlayerState.PLAYING) $('ytHint').classList.remove('show');
+          if(e.data===YT.PlayerState.ENDED) startShow();
+        },
+        onError:function(){ startShow(); }
+      }
+    });
+  }
+  if(window.YT && window.YT.Player){ buildPlayer(); }
+  else{
+    window.onYouTubeIframeAPIReady=buildPlayer;
+    var s=document.createElement('script');
+    s.src='https://www.youtube.com/iframe_api';
+    s.onerror=function(){ startShow(); };
+    document.head.appendChild(s);
+  }
+}
+$('ytSkip').addEventListener('click', startShow);
+$('ytHint').addEventListener('click', function(){
+  if(ytPlayer && ytPlayer.playVideo) ytPlayer.playVideo();
+  this.classList.remove('show');
+});
+
+$('introBtn').addEventListener('click',function(){
+  $('intro').classList.add('hide');
+  setTimeout(function(){ $('intro').style.display='none'; },1800);
+  playIntroVideo();
+});
+
+addEventListener('resize',function(){
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+})();
+</script>
+</body>
+</html>
